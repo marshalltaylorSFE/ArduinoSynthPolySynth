@@ -7,7 +7,7 @@
 
 #include "stdint.h"
 
-#include "timeKeeper32.h"
+
 
 class RateParameter
 {
@@ -15,7 +15,7 @@ public:
   //Constructor
   RateParameter( void );
 //Variables
-  uint32_t timeScale;
+  uint16_t timeScale;
   int8_t powerScale;
 
 
@@ -32,6 +32,20 @@ public:
 
 };
 
+class TimeKeeper32
+{
+public:
+    TimeKeeper32( void );
+    void uClear( void );
+    uint32_t uGet( void );
+    void uIncrement( uint32_t );
+
+private:
+    uint32_t timeElapsed;
+
+};
+
+
 class AudioEffectBendvelope : public AudioStream
 {
 public:
@@ -41,7 +55,7 @@ public:
 	void noteOff();
 	void attack( uint8_t, int8_t );
 	void decay( uint8_t, int8_t );
-	uint32_t getDecay( void );
+	uint16_t getDecay( void );
 	void sustain( uint8_t );
 	void release( uint8_t, int8_t );
 	void setAttackHold( uint8_t );
@@ -51,9 +65,8 @@ public:
 
 	using AudioStream::release;
 	virtual void update(void);
-	void tick( uint32_t );
-
 private:
+
 	audio_block_t *inputQueueArray[1];
 	// state
 	uint8_t  state;  // idle, delay, attack, hold, decay, sustain, release
@@ -64,7 +77,7 @@ private:
 	uint8_t amp;
 	uint8_t shadowAmp;
   
-	void changeAmp( RateParameter&, uint32_t, uint8_t, uint8_t& );
+	void changeAmp( RateParameter&, uint16_t, uint8_t, uint8_t& );
 	void changeAmp( LevelParameter&, uint8_t& );
 	void changeAmp( uint8_t, uint8_t& );
 	
