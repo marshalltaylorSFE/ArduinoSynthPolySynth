@@ -28,7 +28,7 @@ uint8_t usTicksMutex = 1; //start locked out
 //    cannot exceed variable size.
 
 TimerClass32 envTimer( 1000 );
-TimerClass32 debugTimer( 200000 );
+TimerClass32 debugTimer( 1000000 );
 
 AudioOutputI2S           i2s1;
 AudioControlSGTL5000     sgtl5000_1;
