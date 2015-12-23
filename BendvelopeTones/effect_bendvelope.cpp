@@ -18,6 +18,7 @@
 #define NOTE_ON 1
 #define NOTE_NEW 2
 
+extern const uint8_t fastMath[9][257];
 AudioEffectBendvelope::AudioEffectBendvelope() : AudioStream(1, inputQueueArray)
 {
 	//Init variables
@@ -26,7 +27,7 @@ AudioEffectBendvelope::AudioEffectBendvelope() : AudioStream(1, inputQueueArray)
 	amp = 0;
 	//Knob range scaling
 	attackTable.maxTime = 1000000;
-	decayTable.maxTime = 1000000;
+	decayTable.maxTime = 2500000;
 	releaseTable.maxTime = 5000000;
 	maxAHold = 1000000;
 
@@ -37,7 +38,7 @@ BendTable::BendTable( void )
     powerScale = 0;
     maxTime = 10000;
     calculate( 255, 0, 1, 1 );
-    timeDiv = 1; //bad default
+    usMaxStageLength = 1; //bad default
 
 
 }
@@ -65,8 +66,9 @@ void BendTable::calculate( int32_t upperVar, int32_t lowerVar, int8_t polarity, 
             tempTimeVar = 255 - timeVar;
         }
 
-        ampTemp = (uint16_t)(maxAmp*(float)pow(((float)tempTimeVar/(float)255), (exp((double)2*(float)powerScale/127))));
-
+        //ampTemp = (uint16_t)(maxAmp*(float)pow(((float)tempTimeVar/(float)255), (exp((double)2*(float)powerScale/127))));
+		ampTemp = (uint16_t)maxAmp*fastMath[(powerScale/32)+4][tempTimeVar] >> 8;
+		
         if(ampTemp > 255)
         {
             ampTemp = 255;
@@ -224,7 +226,7 @@ void AudioEffectBendvelope::tick( uint32_t uTicks )
 		break;
 	case SM_ATTACK:
 		//Increment amp or leave
-		if( amp == 255 )
+		if( amp > 253 )
 		{
 			next_state = SM_ATTACK_HOLD;
 			mainTimeKeeper.uClear();
@@ -312,15 +314,23 @@ void AudioEffectBendvelope::tick( uint32_t uTicks )
 		}
 		else  //it does equal note off
 		{
-			//if( mainTimeKeeper.uGet() < getDecay() )
-			if( amp > 0 )
+			Serial.println(releaseTable.usMaxStageLength);
+			if( mainTimeKeeper.uGet() < releaseTable.usMaxStageLength )
 			{
-				amp = releaseTable.getSampleByTime(mainTimeKeeper.uGet());
+				if( amp > 0 )
+				{
+					amp = releaseTable.getSampleByTime(mainTimeKeeper.uGet());
+				}
+			}
+			else
+			{
+				amp = 0;
+				next_state = SM_IDLE;
 			}
 		}
 		break;
 	case SM_POST_RELEASE:
-		if( noteState == NOTE_OFF )
+/* 		if( noteState == NOTE_OFF )
 		{
 			//go back to the release
 			next_state = SM_RELEASE;
@@ -332,7 +342,7 @@ void AudioEffectBendvelope::tick( uint32_t uTicks )
 			{
 				//changeAmp( envRelease, mainTimeKeeper.uGet(), state, amp );
 			}
-		}
+		} */
 		break;
 	default:
 		break;
@@ -358,7 +368,7 @@ void AudioEffectBendvelope::attack( uint8_t var_attack, int8_t var_power )
     attackTable.knobFactor = var_attack;
     attackTable.powerScale = var_power;
     attackTable.calculate( 255, 0, 1, 1 );
-    attackTable.timeDiv = var_attack * maxAttack;
+    attackTable.usMaxStageLength = ( var_attack *  attackTable.maxTime ) >> 8;
 
 }
 
@@ -367,7 +377,7 @@ void AudioEffectBendvelope::decay( uint8_t var_decay, int8_t var_power )
     decayTable.knobFactor = var_decay;
     decayTable.powerScale = var_power;
     decayTable.calculate( 255, envSustain.level, 1, -1 );
-    decayTable.timeDiv = var_decay * maxDecay;
+    decayTable.usMaxStageLength = ( var_decay *  decayTable.maxTime ) >> 8;
 }
 
 uint32_t AudioEffectBendvelope::getDecay( void )
@@ -388,7 +398,8 @@ void AudioEffectBendvelope::release( uint8_t var_release, int8_t var_power )
     releaseTable.knobFactor = var_release;
     releaseTable.powerScale = var_power;
     releaseTable.calculate( envSustain.level, 0, -1, 1 );
-    releaseTable.timeDiv = var_release * maxRelease;
+    releaseTable.usMaxStageLength = ( var_release *  releaseTable.maxTime ) >> 8;
+	Serial.println(releaseTable.usMaxStageLength);
 }
 
 void AudioEffectBendvelope::setAttackHold( uint8_t var_attackHold )

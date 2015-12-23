@@ -497,7 +497,7 @@ void loop()
 		bendvelope2.tick(2000);
 		bendvelope3.tick(2000);
 		bendvelope4.tick(2000);
-		Serial.println(usTicks);	
+		//Serial.println(usTicks);
 	}
 	//**Debounce timer****************************//  
 	if(debounceTimer.flagStatus() == PENDING)

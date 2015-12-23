@@ -43,7 +43,7 @@ public:
     int32_t getSampleByTime( uint32_t ); //in microseconds
     uint32_t getPositionBySample( int32_t SampleVar );
     uint32_t getTimeBySample( int32_t SampleVar );
-    uint32_t timeDiv;
+    uint32_t usMaxStageLength;
     uint32_t timeScale;
     int8_t powerScale;
 	uint32_t maxTime;
