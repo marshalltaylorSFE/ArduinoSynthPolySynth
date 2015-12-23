@@ -122,7 +122,7 @@ uint8_t ledToggleState = 0;
 TimerClass32 ledToggleFastTimer( 100000 );
 uint8_t ledToggleFastState = 0;
 
-TimerClass32 envTimer( 5000 );
+TimerClass32 envTimer( 2000 );
 
 //TimerClass32 processSMTimer( 50000 );
 
@@ -152,10 +152,10 @@ uint8_t rxLedFlag = 0;
 
 //New voice trackers
 uint8_t voicesUsed[4] = {0,0,0,0};
-float fineTuneA = 64 * .00261438 + 0.6666666;
-float coarseTuneA = 2 * 64 * .0137255 + 0.25;
-float fineTuneB = 64 * .00261438 + 0.6666666;
-float coarseTuneB = 2 * 64 * .0137255 + 0.25;
+float fineTuneA = 68 * .00261438 + 0.6666666;
+float coarseTuneA = 2 * 9 * .0137255 + 0.25;
+float fineTuneB = 68 * .00261438 + 0.6666666;
+float coarseTuneB = 2 * 27 * .0137255 + 0.25;
 float fineTuneC = 64 * .00261438 + 0.6666666;
 float coarseTuneC = 2 * 64 * .0137255 + 0.25;
 float fineTuneD = 64 * .00261438 + 0.6666666;
@@ -168,11 +168,11 @@ float last3 = 1;
 float last4 = 1;
 
 uint8_t lastAttack = 10;
-uint8_t lastAttackBend = 0;
+int8_t lastAttackBend = 0;
 uint8_t lastDecay = 10;
-uint8_t lastDecayBend = 0;
+int8_t lastDecayBend = 0;
 uint8_t lastRelease = 10;
-uint8_t lastReleaseBend = 0;
+int8_t lastReleaseBend = 0;
 
 #include "note_values.h"
 
@@ -302,17 +302,21 @@ void HandleControlChange(byte channel, byte number, byte value)
 		break;
 		case 32:
 		lastAttack = (value << 1 ) + 1;
+		Serial.println("Start");
 		bendvelope1.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
 		bendvelope2.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
 		bendvelope3.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
 		bendvelope4.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
+		Serial.println("End");
 		break;
 		case 33:
+		Serial.println("Start");
 		lastAttackBend = (value << 1 ) - 128;
 		bendvelope1.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
 		bendvelope2.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
 		bendvelope3.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
 		bendvelope4.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
+		Serial.println("End");
 		break;
 		case 34:
 		//
@@ -370,25 +374,25 @@ void setup()
 	delay(2000);
 	Serial.println("Program Started");
 	
-	bendvelope1.attack( 20, 100 );// 0 to 255 for length, -128 to 127
-	bendvelope1.decay( 100, 100 );// 0 to 255 for length, -128 to 127
+	bendvelope1.attack( 10, 0 );// 0 to 255 for length, -128 to 127
+	bendvelope1.decay( 10, 0 );// 0 to 255 for length, -128 to 127
 	bendvelope1.sustain( 150 );// 0 to 255 for level
-	bendvelope1.release( 30, 100 );// 0 to 255 for length, -128 to 127
+	bendvelope1.release( 10, 0 );// 0 to 255 for length, -128 to 127
 	bendvelope1.setAttackHold( 10 );
-	bendvelope2.attack( 20, 100 );// 0 to 255 for length, -128 to 127
-	bendvelope2.decay( 100, 100 );// 0 to 255 for length, -128 to 127
+	bendvelope2.attack( 10, 0 );// 0 to 255 for length, -128 to 127
+	bendvelope2.decay( 10, 0 );// 0 to 255 for length, -128 to 127
 	bendvelope2.sustain( 150 );// 0 to 255 for level
-	bendvelope2.release( 30, 100 );// 0 to 255 for length, -128 to 127
+	bendvelope2.release( 10, 0 );// 0 to 255 for length, -128 to 127
 	bendvelope2.setAttackHold( 10 );
-	bendvelope3.attack( 20, 100 );// 0 to 255 for length, -128 to 127
-	bendvelope3.decay( 100, 100 );// 0 to 255 for length, -128 to 127
+	bendvelope3.attack( 10, 0 );// 0 to 255 for length, -128 to 127
+	bendvelope3.decay( 10, 0 );// 0 to 255 for length, -128 to 127
 	bendvelope3.sustain( 150 );// 0 to 255 for level
-	bendvelope3.release( 30, 100 );// 0 to 255 for length, -128 to 127
+	bendvelope3.release( 10, 0 );// 0 to 255 for length, -128 to 127
 	bendvelope3.setAttackHold( 10 );
-	bendvelope4.attack( 20, 100 );// 0 to 255 for length, -128 to 127
-	bendvelope4.decay( 100, 100 );// 0 to 255 for length, -128 to 127
+	bendvelope4.attack( 10, 0 );// 0 to 255 for length, -128 to 127
+	bendvelope4.decay( 10, 0 );// 0 to 255 for length, -128 to 127
 	bendvelope4.sustain( 150 );// 0 to 255 for level
-	bendvelope4.release( 30, 100 );// 0 to 255 for length, -128 to 127
+	bendvelope4.release( 10, 0 );// 0 to 255 for length, -128 to 127
 	bendvelope4.setAttackHold( 10 );
 	
 	//Init panel.h stuff
@@ -409,7 +413,7 @@ void setup()
 	//midiA.turnThruOn();
 	midiA.turnThruOff();
 	
-	AudioMemory(90);
+	AudioMemory(50);
   
 	sgtl5000_1.enable();
 	sgtl5000_1.volume(1.0);
@@ -489,11 +493,11 @@ void loop()
 	//**Bendvelope timer**************************//  
 	if(envTimer.flagStatus() == PENDING)
 	{
-		bendvelope1.tick(5000);
-		bendvelope2.tick(5000);
-		bendvelope3.tick(5000);
-		bendvelope4.tick(5000);
-		//Serial.println(usTicks);	
+		bendvelope1.tick(2000);
+		bendvelope2.tick(2000);
+		bendvelope3.tick(2000);
+		bendvelope4.tick(2000);
+		Serial.println(usTicks);	
 	}
 	//**Debounce timer****************************//  
 	if(debounceTimer.flagStatus() == PENDING)
@@ -536,14 +540,38 @@ void loop()
 					////////This is where we might play the note
 					//Check for available voice by finding the next zero
 
-					int nextAvailable;
-					for( nextAvailable = 0; voicesUsed[nextAvailable] == 1; nextAvailable++ )
+					int nextAvailable = -1;
+					int seek;
+					uint8_t currentAmps[4];
+					currentAmps[0] = bendvelope1.amp;
+					currentAmps[1] = bendvelope2.amp;
+					currentAmps[2] = bendvelope3.amp;
+					currentAmps[3] = bendvelope4.amp;
+					
+					//Seek the next available with the lowest current amp.
+					for( seek = 0; seek < 4; seek++ )
 					{
-						//Leaves with 4 if no voice found
+						if(voicesUsed[seek] == 0)
+						{
+							//the voice is free
+							if(nextAvailable == -1)
+							{
+								//no previous note to compare
+								nextAvailable = seek;
+							}
+							else
+							{
+								//compare, choose the quieter voice
+								if( currentAmps[seek] < currentAmps[nextAvailable] )
+								{
+									nextAvailable = seek;
+								}
+								
+							}
+						}
 
 					}
-					
-					if( nextAvailable < 4 )//One is free
+					if( nextAvailable != -1 )//One is free
 					{
 						//Assign the note to this voice
 						tempNote.voice = nextAvailable;
