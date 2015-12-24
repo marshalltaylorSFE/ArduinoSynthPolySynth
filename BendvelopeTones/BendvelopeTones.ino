@@ -186,7 +186,11 @@ void HandleNoteOn(byte channel, byte pitch, byte velocity)
 	tempEvent.value = pitch;
 	tempEvent.data = velocity;
 	tempEvent.voice = -1;	
-
+	//Hackery
+	if( velocity = 0 )
+	{
+		tempEvent.eventType = 0x80;
+	}
 	rxNoteList.pushObject( tempEvent );
 	
 	//midiA.sendNoteOn(pitch, velocity, channel);
@@ -365,7 +369,28 @@ void HandleControlChange(byte channel, byte number, byte value)
 	}
 }
 
-
+void handleSystemReset(void)
+{
+	//Flush all notes
+	while(rxNoteList.listLength())
+	{
+		rxNoteList.dropObject( 0 );
+	}
+	//Clear voice flags
+	voicesUsed[0] = 0;
+	voicesUsed[1] = 0;
+	voicesUsed[2] = 0;
+	voicesUsed[3] = 0;
+	float last1 = 1;
+	float last2 = 1;
+	float last3 = 1;
+	float last4 = 1;
+	//Send note offs to all envelopes
+	bendvelope1.noteOff();
+	bendvelope2.noteOff();
+	bendvelope3.noteOff();
+	bendvelope4.noteOff();
+}
 // -----------------------------------------------------------------------------
 void setup() 
 {
@@ -408,11 +433,11 @@ void setup()
 	midiA.setHandleNoteOn(HandleNoteOn);  // Put only the name of the function
 	midiA.setHandleNoteOff(HandleNoteOff);
 	midiA.setHandleControlChange(HandleControlChange);
+	midiA.setHandleSystemReset(handleSystemReset);
 	// Initiate MIDI communications, listen to all channels
 	midiA.begin(MIDI_CHANNEL_OMNI);
 	//midiA.turnThruOn();
 	midiA.turnThruOff();
-	
 	AudioMemory(50);
   
 	sgtl5000_1.enable();
