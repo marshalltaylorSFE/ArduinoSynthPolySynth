@@ -438,7 +438,7 @@ void setup()
 	midiA.begin(MIDI_CHANNEL_OMNI);
 	//midiA.turnThruOn();
 	midiA.turnThruOff();
-	AudioMemory(50);
+	AudioMemory(20);
   
 	sgtl5000_1.enable();
 	sgtl5000_1.volume(1.0);
@@ -656,13 +656,13 @@ void loop()
 					//record
 					noteOnInList.pushObject( tempNote );
 					
-					rxNoteList.dropObject( unservicedNoteCount - 1 );
 				}
 				else
 				{
 					//Was found
 					//do nothing
 				}
+				rxNoteList.dropObject( unservicedNoteCount - 1 );
 			}
 			else if( tempNote.eventType == 0x80 )
 			{
@@ -708,8 +708,8 @@ void loop()
 					
 					noteOnInList.dropObject( tempSeekDepth );
 
-					rxNoteList.dropObject( unservicedNoteCount - 1 );
 				}				
+				rxNoteList.dropObject( unservicedNoteCount - 1 );
 			}
 			else
 			{

@@ -314,7 +314,7 @@ void AudioEffectBendvelope::tick( uint32_t uTicks )
 		}
 		else  //it does equal note off
 		{
-			Serial.println(releaseTable.usMaxStageLength);
+			//Serial.println(releaseTable.usMaxStageLength);
 			if( mainTimeKeeper.uGet() < releaseTable.usMaxStageLength )
 			{
 				if( amp > 0 )
