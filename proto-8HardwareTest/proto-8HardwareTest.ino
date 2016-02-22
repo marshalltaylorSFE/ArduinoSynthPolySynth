@@ -1,97 +1,186 @@
-#include <SPI.h>  // include the SPI library:
+#include <Audio.h>
+#include <Wire.h>
+#include <SPI.h>
+#include <SD.h>
+#include <SerialFlash.h>
 
-const int nOEPin = 33;
-const int LCLKPin = 32;
-const int nRSTPin = 26;
-const int SPI_CLK = 14;
-const int SPI_MOSI = 7;
+// GUItool: begin automatically generated code
+AudioSynthWaveformSine   sine3;          //xy=176.88888549804688,208
+AudioSynthWaveformSine   sine1;          //xy=177.88888549804688,112
+AudioSynthWaveformSine   sine2;          //xy=177.88888549804688,160
+AudioSynthWaveformSine   sine4;          //xy=177.88888549804688,258
+AudioOutputI2SQuad       i2s_quad1;      //xy=454.888916015625,147
+AudioConnection          patchCord1(sine3, 0, i2s_quad1, 2);
+AudioConnection          patchCord2(sine1, 0, i2s_quad1, 0);
+AudioConnection          patchCord3(sine2, 0, i2s_quad1, 1);
+AudioConnection          patchCord4(sine4, 0, i2s_quad1, 3);
+AudioControlSGTL5000     sgtl5000_1;     //xy=429.888916015625,226
+AudioControlSGTL5000     sgtl5000_2;     //xy=429.888916015625,271
+// GUItool: end automatically generated code
+
+//This sketch generates a scope loop on the button pins, led outputs, and the mux select pins.
+
+
+#include "proto-8Hardware.h"
 
 int8_t loopCount = 0;
 int8_t maxLoopCount = 20;
-void setup() {
-  // set the slaveSelectPin as an output:
-  pinMode (nOEPin, OUTPUT);
-  pinMode (LCLKPin, OUTPUT);
-  pinMode (nRSTPin, OUTPUT);
-  
-  digitalWrite(nOEPin, 0);
-  digitalWrite(LCLKPin, 1);
-  digitalWrite(nRSTPin, 1);
-  
-  // initialize SPI:
-  SPI.setMOSI(SPI_MOSI);
-  SPI.setSCK(SPI_CLK);
-  SPI.begin();
-  SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE0));
+
+LEDShiftRegister LEDs;
+AnalogMuxTree knobs;
+
+void setup()
+{
+	//**** Audio Section ****//
+	AudioMemory(35);
+	
+	sgtl5000_1.setAddress(LOW);
+	sgtl5000_1.enable();
+	sgtl5000_1.volume(0.5);
+	
+	sgtl5000_2.setAddress(HIGH);
+	sgtl5000_2.enable();
+	sgtl5000_2.volume(0.5);
+	
+	sine1.amplitude(1);
+	sine1.frequency(440);
+	
+	sine2.amplitude(1);
+	sine2.frequency(220);
+	
+	sine3.amplitude(1);
+	sine3.frequency(440);
+	
+	sine4.amplitude(1);
+	sine4.frequency(350);
+	
+	Serial.begin(9600);
 
 }
 
 void loop()
 {
-	for( int n = 0; n <= 1; n++ )
+	Serial.println("Program Started");
+	Serial.println("Input characters to step through the tests");
+	while(Serial.available() == 0);
+	while(Serial.available())
 	{
-		for( int i = 0; i <= 7; i++ )
+		Serial.read();
+	}
+	Serial.println("\nMUX SELECT PINS");
+	Serial.println("  Walks through ABCD");
+	
+	//Countdown*********************************************//
+	Serial.println("Push return to start countdown.");
+	while(Serial.available() == 0);
+	while(Serial.available())
+	{
+		Serial.read();
+	}
+	Serial.print("3.. ");
+	delay(1000);
+	Serial.print("2.. ");
+	delay(1000);
+	Serial.print("1.. ");
+	delay(1000);
+	Serial.println("GO!");
+	//End Countdown*****************************************//
+	
+	pinMode(MUXAPin, OUTPUT);
+	pinMode(MUXBPin, OUTPUT);
+	pinMode(MUXCPin, OUTPUT);
+	pinMode(MUXDPin, OUTPUT);
+	
+	digitalWrite(MUXAPin, 1);
+	delay(1000);
+	
+	digitalWrite(MUXAPin, 0);
+	digitalWrite(MUXBPin, 1);
+	delay(1000);
+	
+	digitalWrite(MUXBPin, 0);
+	digitalWrite(MUXCPin, 1);
+	delay(1000);
+
+	digitalWrite(MUXCPin, 0);
+	digitalWrite(MUXDPin, 1);
+	delay(1000);
+	digitalWrite(MUXDPin, 0);
+
+	Serial.println("\nMUX SELECT PINS");
+	Serial.println("  Push return to read all knobs");
+	while(Serial.available() == 0);
+	while(Serial.available())
+	{
+		Serial.read();
+	}
+	knobs.begin();
+	knobs.scan();
+	for(int i = 1; i < 65; i++)
+	{
+		Serial.print(i);
+		Serial.print(", ");
+		Serial.println(knobs.fetch(i));
+	}
+	Serial.println("Reading Knobs.");
+	
+	Serial.println("Test done.");
+
+	Serial.println("\nLED PINS");
+	LEDs.begin();
+	Serial.println("  Test walks a 1 from LED 1 to 64, each second.");
+	Serial.println("  Follow with a multimeter");
+
+	//Countdown*********************************************//
+	Serial.println("Push return to start countdown.");
+	while(Serial.available() == 0);
+	while(Serial.available())
+	{
+		Serial.read();
+	}
+	Serial.print("3.. ");
+	delay(1000);
+	Serial.print("2.. ");
+	delay(1000);
+	Serial.print("1.. ");
+	delay(1000);
+	Serial.println("GO!");
+	//End Countdown*****************************************//
+
+
+	LEDs.clear();
+	LEDs.send();
+	for(int i = 0; i < 64; i++)
+	{
+		LEDs.store(i, 0);
+		LEDs.store(i + 1, 1);
+		LEDs.send();
+		delay(1000);
+	}
+	Serial.println("Test done.");
+	
+	while(1)
+	{
+		while(Serial.available() == 0);
+		while(Serial.available())
 		{
-			SPI.transfer(0x00);
-			SPI.transfer(0x01 << i);
-			digitalWrite(LCLKPin, 0);
-			delay(1);
-			digitalWrite(LCLKPin, 1);  
-			delay(n*200+50);
-			
-		} 
+			Serial.read();
+		}
+		Serial.println("Reading Knobs.");
 		
-		for( int i = 0; i <= 7; i++ )
+		knobs.begin();
+		knobs.scan();
+		int temp;
+		for(int j = 0; j < 8; j++)
 		{
-			SPI.transfer(0x01 << i);
-			SPI.transfer(0x00);
-			digitalWrite(LCLKPin, 0);
-			delay(1);
-			digitalWrite(LCLKPin, 1);  
-			delay(n*200+50);
-		} 
-		delay(n*400+200);
+			for(int i = 0; i < 8; i++)
+			{
+				temp = (j * 8) + i + 1;
+				Serial.print(knobs.fetch(temp));
+				Serial.print(", ");
+			}
+			Serial.print("\n");
+		}
 	}
-	//delay(1000);
-	for(uint32_t n = 0; n < 100; n++)
-	{
-			for(int i = 0; i < 2; i++)
-			{
-				SPI.transfer(0xFE);
-				SPI.transfer(0xFF);
-				digitalWrite(LCLKPin, 0);
-				delay(1);
-				digitalWrite(LCLKPin, 1);  
-			}
-			for(int i = 0; i < 3; i++)
-			{
-				SPI.transfer(0x78);
-				SPI.transfer(0x3F);
-				digitalWrite(LCLKPin, 0);
-				delay(1);
-				digitalWrite(LCLKPin, 1);  
-			}
-			for(int i = 0; i < 6; i++)
-			{
-				SPI.transfer(0x30);
-				SPI.transfer(0x0F);
-				digitalWrite(LCLKPin, 0);
-				delay(1);
-				digitalWrite(LCLKPin, 1);  
-			}
-			for(int i = 0; i < 12; i++)
-			{
-				SPI.transfer(0x10);
-				SPI.transfer(0x03);
-				digitalWrite(LCLKPin, 0);
-				delay(1);
-				digitalWrite(LCLKPin, 1);  
-			}
-	}
-	SPI.transfer(0xAA);//MSB
-	SPI.transfer(0x55);
-	digitalWrite(LCLKPin, 0);
-	delay(1);
-	digitalWrite(LCLKPin, 1);  	
-	while(1);
+	
 }

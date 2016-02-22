@@ -1,3 +1,76 @@
+#include <Audio.h>
+#include <Wire.h>
+#include <SPI.h>
+#include <SD.h>
+#include "SerialFlash.h"
+#include "effect_bendvelope.h"
+
+// GUItool: begin automatically generated code
+AudioSynthWaveform       waveform2A;     //xy=1132.3809814453125,1071.90478515625
+AudioSynthWaveform       waveform2C;     //xy=1135.3809814453125,1148.90478515625
+AudioSynthWaveform       waveform2B;     //xy=1136.3809814453125,1109.90478515625
+AudioSynthWaveform       waveform3A;     //xy=1138.3809814453125,1233.90478515625
+AudioSynthWaveform       waveform3B;     //xy=1138.3809814453125,1270.90478515625
+AudioSynthWaveform       waveform3C;     //xy=1138.3809814453125,1310.90478515625
+AudioSynthWaveform       waveform1A;     //xy=1140.3809814453125,907.90478515625
+AudioSynthWaveform       waveform1B;     //xy=1140.3809814453125,942.90478515625
+AudioSynthWaveform       waveform1C;     //xy=1140.3809814453125,982.90478515625
+AudioSynthWaveform       waveform4B;     //xy=1140.3809814453125,1430.90478515625
+AudioSynthWaveform       waveform4A;     //xy=1146.3809814453125,1395.90478515625
+AudioSynthWaveform       waveform4C;     //xy=1146.3809814453125,1465.90478515625
+AudioMixer4              mixer1;         //xy=1363.3809814453125,941.90478515625
+AudioMixer4              mixer2;         //xy=1369.3809814453125,1124.90478515625
+AudioMixer4              mixer4;         //xy=1370.3809814453125,1450.90478515625
+AudioMixer4              mixer3;         //xy=1371.3809814453125,1305.90478515625
+AudioEffectBendvelope    bendvelope3;    //xy=1585.3809814453125,1230.90478515625
+AudioEffectBendvelope    bendvelope1;    //xy=1591.3809814453125,960.90478515625
+AudioEffectBendvelope    bendvelope2;    //xy=1595.3809814453125,1094.90478515625
+AudioEffectBendvelope    bendvelope4;    //xy=1598.3809814453125,1372.90478515625
+AudioMixer4              mixer5;         //xy=1894.3809814453125,1120.90478515625
+AudioFilterStateVariable filter1;        //xy=2050.3809814453125,1128.90478515625
+AudioFilterStateVariable filter3;        //xy=2186.3809814453125,1129.90478515625
+AudioInputI2SQuad        i2s_quad1;      //xy=2191.3809814453125,1249.90478515625
+AudioMixer4              mixer6;         //xy=2398.380870819092,1146.333345413208
+AudioOutputI2SQuad       i2s_quad2;      //xy=2655.3809814453125,1139.90478515625
+AudioConnection          patchCord1(waveform2A, 0, mixer2, 0);
+AudioConnection          patchCord2(waveform2C, 0, mixer2, 2);
+AudioConnection          patchCord3(waveform2B, 0, mixer2, 1);
+AudioConnection          patchCord4(waveform3A, 0, mixer3, 0);
+AudioConnection          patchCord5(waveform3B, 0, mixer3, 1);
+AudioConnection          patchCord6(waveform3C, 0, mixer3, 2);
+AudioConnection          patchCord7(waveform1A, 0, mixer1, 0);
+AudioConnection          patchCord8(waveform1B, 0, mixer1, 1);
+AudioConnection          patchCord9(waveform1C, 0, mixer1, 2);
+AudioConnection          patchCord10(waveform4B, 0, mixer4, 1);
+AudioConnection          patchCord11(waveform4A, 0, mixer4, 0);
+AudioConnection          patchCord12(waveform4C, 0, mixer4, 2);
+AudioConnection          patchCord13(mixer1, bendvelope1);
+AudioConnection          patchCord14(mixer2, bendvelope2);
+AudioConnection          patchCord15(mixer4, bendvelope4);
+AudioConnection          patchCord16(mixer3, bendvelope3);
+AudioConnection          patchCord17(bendvelope3, 0, mixer5, 2);
+AudioConnection          patchCord18(bendvelope1, 0, mixer5, 0);
+AudioConnection          patchCord19(bendvelope2, 0, mixer5, 1);
+AudioConnection          patchCord20(bendvelope4, 0, mixer5, 3);
+AudioConnection          patchCord21(mixer5, 0, filter1, 0);
+AudioConnection          patchCord22(filter1, 0, filter3, 0);
+AudioConnection          patchCord23(filter3, 0, mixer6, 0);
+//AudioConnection          patchCord24(i2s_quad1, 0, mixer6, 1);
+//AudioConnection          patchCord25(i2s_quad1, 1, mixer6, 2);
+//AudioConnection          patchCord26(i2s_quad1, 2, i2s_quad2, 2);
+//AudioConnection          patchCord27(i2s_quad1, 3, i2s_quad2, 3);
+//AudioConnection          patchCord28(mixer6, 0, i2s_quad2, 0);
+//AudioConnection          patchCord29(mixer6, 0, i2s_quad2, 1);
+AudioConnection          patchCord101(i2s_quad1, 0, i2s_quad2, 2);
+AudioConnection          patchCord102(i2s_quad1, 1, i2s_quad2, 3);
+AudioConnection          patchCord103(i2s_quad1, 2, i2s_quad2, 0);
+AudioConnection          patchCord104(i2s_quad1, 3, i2s_quad2, 1);
+
+AudioControlSGTL5000     sgtl5000_1;     //xy=2330.3809814453125,993.90478515625
+AudioControlSGTL5000     sgtl5000_2;     //xy=2334.3809814453125,949.90478515625
+// GUItool: end automatically generated code
+
+
 //**********************************************************************//
 //  BEERWARE LICENSE
 //
@@ -11,82 +84,38 @@
 //
 //**********************************************************************//
 
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
+//Note to self:  To us the audio tool, use the bendvelope as a 1:1 object, then replace name with bendvelope[N]
+/*
 #include "effect_bendvelope.h"
-
+//AudioEffectbendvelope    bendvelope3;    //xy=566.888916015625,514.1111145019531
+//AudioEffectbendvelope    bendvelope1;    //xy=572.888916015625,244.11108207702637
+//AudioEffectbendvelope    bendvelope2;    //xy=576.888916015625,378.11108207702637
+//AudioEffectbendvelope    bendvelope4;    //xy=579.8889465332031,656.1111145019531
 AudioEffectBendvelope    bendvelope1;      //custom
 AudioEffectBendvelope    bendvelope2;      //custom
 AudioEffectBendvelope    bendvelope3;      //custom
 AudioEffectBendvelope    bendvelope4;      //custom
+//AudioConnection          patchCord17(mixer1, bendvelope1);
+//AudioConnection          patchCord18(mixer2, bendvelope2);
+//AudioConnection          patchCord19(mixer4, bendvelope4);
+//AudioConnection          patchCord20(mixer3, bendvelope3);
+//AudioConnection          patchCord21(bendvelope3, 0, mixer5, 2);
+//AudioConnection          patchCord22(bendvelope1, 0, mixer5, 0);
+//AudioConnection          patchCord23(bendvelope2, 0, mixer5, 1);
+//AudioConnection          patchCord24(bendvelope4, 0, mixer5, 3);
+AudioConnection          patchCord17(mixer1, bendvelope1);
+AudioConnection          patchCord18(mixer2, bendvelope2);
+AudioConnection          patchCord19(mixer4, bendvelope4);
+AudioConnection          patchCord20(mixer3, bendvelope3);
+AudioConnection          patchCord21(bendvelope3, 0, mixer5, 2);
+AudioConnection          patchCord22(bendvelope1, 0, mixer5, 0);
+AudioConnection          patchCord23(bendvelope2, 0, mixer5, 1);
+AudioConnection          patchCord24(bendvelope4, 0, mixer5, 3);
 
+*/
 
-AudioSynthWaveform       waveform1A;      //xy=191,353
-AudioSynthWaveform       waveform1B;      //xy=192,276
-AudioSynthWaveform       waveform1C;      //xy=192,314
-AudioSynthWaveform       waveform1D;      //xy=193,236
-AudioMixer4              mixer1;         //xy=379,294
-AudioConnection          patchCord1A(waveform1A, 0, mixer1, 0);
-AudioConnection          patchCord1B(waveform1B, 0, mixer1, 1);
-AudioConnection          patchCord1C(waveform1C, 0, mixer1, 2);
-AudioConnection          patchCord1D(waveform1D, 0, mixer1, 3);
-
-
-AudioSynthWaveform       waveform2A;      //xy=191,353
-AudioSynthWaveform       waveform2B;      //xy=192,276
-AudioSynthWaveform       waveform2C;      //xy=192,314
-AudioSynthWaveform       waveform2D;      //xy=193,236
-AudioMixer4              mixer2;         //xy=379,294
-AudioConnection          patchCord2A(waveform2A, 0, mixer2, 0);
-AudioConnection          patchCord2B(waveform2B, 0, mixer2, 1);
-AudioConnection          patchCord2C(waveform2C, 0, mixer2, 2);
-AudioConnection          patchCord2D(waveform2D, 0, mixer2, 3);
-
-AudioSynthWaveform       waveform3A;      //xy=191,353
-AudioSynthWaveform       waveform3B;      //xy=192,276
-AudioSynthWaveform       waveform3C;      //xy=192,314
-AudioSynthWaveform       waveform3D;      //xy=193,236
-AudioMixer4              mixer3;         //xy=379,294
-AudioConnection          patchCord3A(waveform3A, 0, mixer3, 0);
-AudioConnection          patchCord3B(waveform3B, 0, mixer3, 1);
-AudioConnection          patchCord3C(waveform3C, 0, mixer3, 2);
-AudioConnection          patchCord3D(waveform3D, 0, mixer3, 3);
-
-AudioSynthWaveform       waveform4A;      //xy=191,353
-AudioSynthWaveform       waveform4B;      //xy=192,276
-AudioSynthWaveform       waveform4C;      //xy=192,314
-AudioSynthWaveform       waveform4D;      //xy=193,236
-AudioMixer4              mixer4;         //xy=379,294
-AudioConnection          patchCord4A(waveform4A, 0, mixer4, 0);
-AudioConnection          patchCord4B(waveform4B, 0, mixer4, 1);
-AudioConnection          patchCord4C(waveform4C, 0, mixer4, 2);
-AudioConnection          patchCord4D(waveform4D, 0, mixer4, 3);
-
-AudioMixer4              mixer5;         //xy=379,294
-AudioConnection          patchCord1BendIn(mixer1, 0, bendvelope1, 0);
-AudioConnection          patchCord2BendIn(mixer2, 0, bendvelope2, 0);
-AudioConnection          patchCord3BendIn(mixer3, 0, bendvelope3, 0);
-AudioConnection          patchCord4BendIn(mixer4, 0, bendvelope4, 0);
-AudioConnection          patchCord1BendOut(bendvelope1, 0, mixer5, 0);
-AudioConnection          patchCord2BendOut(bendvelope2, 0, mixer5, 1);
-AudioConnection          patchCord3BendOut(bendvelope3, 0, mixer5, 2);
-AudioConnection          patchCord4BendOut(bendvelope4, 0, mixer5, 3);
-
-
-AudioFilterStateVariable filter1;        //xy=525,301
-AudioFilterStateVariable filter3;        //xy=681,292
-AudioOutputI2S           i2s1;           //xy=839,296
-
-
-AudioConnection          patchCord5(mixer5, 0, filter1, 0);
-AudioConnection          patchCord6(filter1, 0, filter3, 0);
-AudioConnection          patchCord7(filter3, 0, i2s1, 0);
-AudioConnection          patchCord8(filter3, 0, i2s1, 1);
-AudioControlSGTL5000     sgtl5000_1;     //xy=493,374
-// GUItool: end automatically generated code
+const int myInput = AUDIO_INPUT_LINEIN;
+//const int myInput = AUDIO_INPUT_MIC;
 
 
 //**Timers and stuff**************************//
@@ -187,7 +216,7 @@ void HandleNoteOn(byte channel, byte pitch, byte velocity)
 	tempEvent.data = velocity;
 	tempEvent.voice = -1;	
 	//Hackery
-	if( velocity = 0 )
+	if( velocity == 0 )
 	{
 		tempEvent.eventType = 0x80;
 	}
@@ -263,10 +292,10 @@ void HandleControlChange(byte channel, byte number, byte value)
 		//Process fine tune-- build the multiplier 2/3 to 4/3
 		//f(x) = 2/3 * 1/255 * x + 2/3
 		fineTuneD = value * .00261438 + 0.6666666;
-		waveform1D.frequency((last1) * fineTuneD * coarseTuneD);
-		waveform2D.frequency((last2) * fineTuneD * coarseTuneD);
-		waveform3D.frequency((last3) * fineTuneD * coarseTuneD);
-		waveform4D.frequency((last4) * fineTuneD * coarseTuneD);
+		//waveform1D.frequency((last1) * fineTuneD * coarseTuneD);
+		//waveform2D.frequency((last2) * fineTuneD * coarseTuneD);
+		//waveform3D.frequency((last3) * fineTuneD * coarseTuneD);
+		//waveform4D.frequency((last4) * fineTuneD * coarseTuneD);
 		break;
 		case 20:
 		//Process coarse tune-- build the multiplier 0.25 to 4
@@ -299,10 +328,10 @@ void HandleControlChange(byte channel, byte number, byte value)
 		//Process coarse tune-- build the multiplier 0.25 to 4
 		//f(x) = 7/2 * 1/255 * x + 0.5
 		coarseTuneD = 2 * value * .0137255 + 0.25;
-		waveform1D.frequency((last1) * fineTuneD * coarseTuneD);
-		waveform2D.frequency((last2) * fineTuneD * coarseTuneD);
-		waveform3D.frequency((last3) * fineTuneD * coarseTuneD);
-		waveform4D.frequency((last4) * fineTuneD * coarseTuneD);
+		//waveform1D.frequency((last1) * fineTuneD * coarseTuneD);
+		//waveform2D.frequency((last2) * fineTuneD * coarseTuneD);
+		//waveform3D.frequency((last3) * fineTuneD * coarseTuneD);
+		//waveform4D.frequency((last4) * fineTuneD * coarseTuneD);
 		break;
 		case 32:
 		lastAttack = (value << 1 ) + 1;
@@ -438,11 +467,20 @@ void setup()
 	midiA.begin(MIDI_CHANNEL_OMNI);
 	//midiA.turnThruOn();
 	midiA.turnThruOff();
-	AudioMemory(20);
+	
+	AudioMemory(40);
   
+	sgtl5000_1.setAddress(LOW);
 	sgtl5000_1.enable();
-	sgtl5000_1.volume(1.0);
-	sgtl5000_1.unmuteHeadphone();
+	sgtl5000_1.inputSelect(myInput);
+	sgtl5000_1.volume(0.5);
+//	sgtl5000_1.unmuteHeadphone();
+	
+	sgtl5000_2.setAddress(HIGH);
+	sgtl5000_2.enable();
+	sgtl5000_2.inputSelect(myInput);
+	sgtl5000_2.volume(0.5);
+// 	sgtl5000_2.unmuteHeadphone();
 	
 	filter1.frequency(8000);  
 	filter3.frequency(8000);
@@ -450,22 +488,22 @@ void setup()
 	waveform1A.begin(1.0, 100, WAVEFORM_SQUARE);
 	waveform1B.begin(1.0, 100, WAVEFORM_SAWTOOTH);
 	waveform1C.begin(0.6, 100, WAVEFORM_SAWTOOTH);
-	waveform1D.begin(0.6, 100, WAVEFORM_SAWTOOTH);
+	//waveform1D.begin(0.6, 100, WAVEFORM_SAWTOOTH);
 	
 	waveform2A.begin(1.0, 100, WAVEFORM_SQUARE);
 	waveform2B.begin(1.0, 100, WAVEFORM_SAWTOOTH);
 	waveform2C.begin(0.6, 100, WAVEFORM_SAWTOOTH);
-	waveform2D.begin(0.6, 100, WAVEFORM_SAWTOOTH);
+	//waveform2D.begin(0.6, 100, WAVEFORM_SAWTOOTH);
 	
 	waveform3A.begin(1.0, 100, WAVEFORM_SQUARE);
 	waveform3B.begin(1.0, 100, WAVEFORM_SAWTOOTH);
 	waveform3C.begin(0.6, 100, WAVEFORM_SAWTOOTH);
-	waveform3D.begin(0.6, 100, WAVEFORM_SAWTOOTH);
+	//waveform3D.begin(0.6, 100, WAVEFORM_SAWTOOTH);
 	
 	waveform4A.begin(1.0, 100, WAVEFORM_SQUARE);
 	waveform4B.begin(1.0, 100, WAVEFORM_SAWTOOTH);
 	waveform4C.begin(0.6, 100, WAVEFORM_SAWTOOTH);
-	waveform4D.begin(0.6, 100, WAVEFORM_SAWTOOTH);
+	//waveform4D.begin(0.6, 100, WAVEFORM_SAWTOOTH);
 	
 	mixer1.gain(0, 0.0625);
 	mixer1.gain(1, 0.0625);
@@ -492,7 +530,11 @@ void setup()
 	mixer5.gain(2, 0.25);
 	mixer5.gain(3, 0.25);
 	
-	
+	mixer6.gain(0, 0.5);
+	mixer6.gain(1, 0.5);
+	mixer6.gain(2, 0.5);
+	mixer6.gain(3, 0.5);
+	while(1);
 }
 
 void loop()
@@ -614,7 +656,7 @@ void loop()
 							waveform1A.frequency(tempFrequencyA);
 							waveform1B.frequency(tempFrequencyB);
 							waveform1C.frequency(tempFrequencyC);
-							waveform1D.frequency(tempFrequencyD);
+							//waveform1D.frequency(tempFrequencyD);
 							last1 = note_frequency[tempNote.value];
 							bendvelope1.noteOn();
 							break;
@@ -622,7 +664,7 @@ void loop()
 							waveform2A.frequency(tempFrequencyA);
 							waveform2B.frequency(tempFrequencyB);
 							waveform2C.frequency(tempFrequencyC);
-							waveform2D.frequency(tempFrequencyD);
+							//waveform2D.frequency(tempFrequencyD);
 							last2 = note_frequency[tempNote.value];
 							bendvelope2.noteOn();
 							break;
@@ -630,7 +672,7 @@ void loop()
 							waveform3A.frequency(tempFrequencyA);
 							waveform3B.frequency(tempFrequencyB);
 							waveform3C.frequency(tempFrequencyC);
-							waveform3D.frequency(tempFrequencyD);
+							//waveform3D.frequency(tempFrequencyD);
 							last3 = note_frequency[tempNote.value];
 							bendvelope3.noteOn();
 							break;
@@ -638,7 +680,7 @@ void loop()
 							waveform4A.frequency(tempFrequencyA);
 							waveform4B.frequency(tempFrequencyB);
 							waveform4C.frequency(tempFrequencyC);
-							waveform4D.frequency(tempFrequencyD);
+							//waveform4D.frequency(tempFrequencyD);
 							last4 = note_frequency[tempNote.value];
 							bendvelope4.noteOn();
 							break;
