@@ -28,7 +28,7 @@ int8_t maxLoopCount = 20;
 
 LEDShiftRegister LEDs;
 AnalogMuxTree knobs;
-
+SwitchMatrix switches;
 void setup()
 {
 	//**** Audio Section ****//
@@ -60,127 +60,168 @@ void setup()
 
 void loop()
 {
-	Serial.println("Program Started");
-	Serial.println("Input characters to step through the tests");
-	while(Serial.available() == 0);
-	while(Serial.available())
-	{
-		Serial.read();
-	}
-	Serial.println("\nMUX SELECT PINS");
-	Serial.println("  Walks through ABCD");
-	
-	//Countdown*********************************************//
-	Serial.println("Push return to start countdown.");
-	while(Serial.available() == 0);
-	while(Serial.available())
-	{
-		Serial.read();
-	}
-	Serial.print("3.. ");
-	delay(1000);
-	Serial.print("2.. ");
-	delay(1000);
-	Serial.print("1.. ");
-	delay(1000);
-	Serial.println("GO!");
-	//End Countdown*****************************************//
-	
-	pinMode(MUXAPin, OUTPUT);
-	pinMode(MUXBPin, OUTPUT);
-	pinMode(MUXCPin, OUTPUT);
-	pinMode(MUXDPin, OUTPUT);
-	
-	digitalWrite(MUXAPin, 1);
-	delay(1000);
-	
-	digitalWrite(MUXAPin, 0);
-	digitalWrite(MUXBPin, 1);
-	delay(1000);
-	
-	digitalWrite(MUXBPin, 0);
-	digitalWrite(MUXCPin, 1);
-	delay(1000);
-
-	digitalWrite(MUXCPin, 0);
-	digitalWrite(MUXDPin, 1);
-	delay(1000);
-	digitalWrite(MUXDPin, 0);
-
-	Serial.println("\nMUX SELECT PINS");
-	Serial.println("  Push return to read all knobs");
-	while(Serial.available() == 0);
-	while(Serial.available())
-	{
-		Serial.read();
-	}
+//	Serial.println("Program Started");
+//	Serial.println("Input characters to step through the tests");
+//	while(Serial.available() == 0);
+//	while(Serial.available())
+//	{
+//		Serial.read();
+//	}
+//	Serial.println("\nMUX SELECT PINS");
+//	Serial.println("  Walks through ABCD");
+//	
+//	//Countdown*********************************************//
+//	Serial.println("Push return to start countdown.");
+//	while(Serial.available() == 0);
+//	while(Serial.available())
+//	{
+//		Serial.read();
+//	}
+//	Serial.print("2.. ");
+//	delay(1000);
+//	Serial.print("1.. ");
+//	delay(1000);
+//	Serial.println("GO!");
+//	//End Countdown*****************************************//
+//	
+//	pinMode(MUXAPin, OUTPUT);
+//	pinMode(MUXBPin, OUTPUT);
+//	pinMode(MUXCPin, OUTPUT);
+//	pinMode(MUXDPin, OUTPUT);
+//	
+//	digitalWrite(MUXAPin, 1);
+//	delay(1000);
+//	
+//	digitalWrite(MUXAPin, 0);
+//	digitalWrite(MUXBPin, 1);
+//	delay(1000);
+//	
+//	digitalWrite(MUXBPin, 0);
+//	digitalWrite(MUXCPin, 1);
+//	delay(1000);
+//
+//	digitalWrite(MUXCPin, 0);
+//	digitalWrite(MUXDPin, 1);
+//	delay(1000);
+//	digitalWrite(MUXDPin, 0);
+//
+//	Serial.println("\nMUX SELECT PINS");
+//	Serial.println("  Push return to read all knobs");
+//	while(Serial.available() == 0);
+//	while(Serial.available())
+//	{
+//		Serial.read();
+//	}
 	knobs.begin();
-	knobs.scan();
-	for(int i = 1; i < 65; i++)
-	{
-		Serial.print(i);
-		Serial.print(", ");
-		Serial.println(knobs.fetch(i));
-	}
-	Serial.println("Reading Knobs.");
-	
-	Serial.println("Test done.");
-
-	Serial.println("\nLED PINS");
+//	knobs.scan();
+//	for(int i = 1; i < 65; i++)
+//	{
+//		Serial.print(i);
+//		Serial.print(", ");
+//		Serial.println(knobs.fetch(i));
+//	}
+//	Serial.println("Reading Knobs.");
+//	
+//	Serial.println("Test done.");
+//
+//	Serial.println("\nLED PINS");
 	LEDs.begin();
-	Serial.println("  Test walks a 1 from LED 1 to 64, each second.");
-	Serial.println("  Follow with a multimeter");
+//	Serial.println("  Test walks a 1 from LED 1 to 64, each second.");
+//	Serial.println("  Follow with a multimeter");
+//
+//	//Countdown*********************************************//
+//	Serial.println("Push return to start countdown.");
+//	while(Serial.available() == 0);
+//	while(Serial.available())
+//	{
+//		Serial.read();
+//	}
+//	Serial.print("2.. ");
+//	delay(1000);
+//	Serial.print("1.. ");
+//	delay(1000);
+//	Serial.println("GO!");
+//	//End Countdown*****************************************//
+//
+//
+//	LEDs.clear();
+//	LEDs.send();
+//	for(int i = 0; i < 64; i++)
+//	{
+//		LEDs.store(i, 0);
+//		LEDs.store(i + 1, 1);
+//		LEDs.send();
+//		delay(100);
+//	}
+//	Serial.println("Test done.");
 
-	//Countdown*********************************************//
-	Serial.println("Push return to start countdown.");
-	while(Serial.available() == 0);
-	while(Serial.available())
-	{
-		Serial.read();
-	}
-	Serial.print("3.. ");
-	delay(1000);
-	Serial.print("2.. ");
-	delay(1000);
-	Serial.print("1.. ");
-	delay(1000);
-	Serial.println("GO!");
-	//End Countdown*****************************************//
+	switches.begin();
+	switches.send(0x0001);
 
 
-	LEDs.clear();
-	LEDs.send();
-	for(int i = 0; i < 64; i++)
-	{
-		LEDs.store(i, 0);
-		LEDs.store(i + 1, 1);
-		LEDs.send();
-		delay(1000);
-	}
-	Serial.println("Test done.");
-	
+
 	while(1)
 	{
-		while(Serial.available() == 0);
-		while(Serial.available())
-		{
-			Serial.read();
-		}
-		Serial.println("Reading Knobs.");
-		
-		knobs.begin();
 		knobs.scan();
-		int temp;
-		for(int j = 0; j < 8; j++)
+		if(Serial.available() == 1)
 		{
-			for(int i = 0; i < 8; i++)
+			while(Serial.available())
 			{
-				temp = (j * 8) + i + 1;
-				Serial.print(knobs.fetch(temp));
-				Serial.print(", ");
+				Serial.read();
 			}
-			Serial.print("\n");
+			Serial.println("Reading Knobs.");
+			
+			int temp;
+			for(int j = 0; j < 8; j++)
+			{
+				for(int i = 0; i < 8; i++)
+				{
+					temp = (j * 8) + i + 1;
+					Serial.print(knobs.fetch(temp));
+					Serial.print(", ");
+				}
+				Serial.print("\n");
+			}
 		}
+		LEDs.clear();
+		uint16_t temp;
+		temp = knobs.fetch(64);
+		temp = temp >> 4;
+		LEDs.store(temp + 1, 1);
+		
+		temp = knobs.fetch(49);
+		temp = temp >> 4;
+		LEDs.store(temp + 1, 1);
+		
+		temp = knobs.fetch(50);
+		temp = temp >> 4;
+		LEDs.store(temp + 1, 1);
+		
+		temp = knobs.fetch(51);
+		temp = temp >> 4;
+		LEDs.store(temp + 1, 1);
+		
+		temp = knobs.fetch(52);
+		temp = temp >> 4;
+		LEDs.store(temp + 1, 1);
+		
+		temp = knobs.fetch(53);
+		temp = temp >> 4;
+		LEDs.store(temp + 1, 1);
+		
+		temp = knobs.fetch(54);
+		temp = temp >> 4;
+		LEDs.store(temp + 1, 1);
+		
+		temp = knobs.fetch(55);
+		temp = temp >> 4;
+		LEDs.store(temp + 1, 1);
+		
+		temp = knobs.fetch(56);
+		temp = temp >> 4;
+		LEDs.store(temp + 1, 1);
+		
+		LEDs.send();
 	}
 	
 }

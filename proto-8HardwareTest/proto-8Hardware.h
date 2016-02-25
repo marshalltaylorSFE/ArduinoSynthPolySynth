@@ -53,6 +53,17 @@ private:
 	uint16_t KnobData[64];
 };
 
+class SwitchMatrix
+{
+public:
+	SwitchMatrix();
+	void begin();
+	void scan();
+	uint8_t fetch( uint8_t );
+	void send( uint16_t );
 
+private:
+	//uint16_t KnobData[64];
+};
 
 #endif

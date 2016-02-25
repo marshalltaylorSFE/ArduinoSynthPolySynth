@@ -142,3 +142,66 @@ uint16_t AnalogMuxTree::fetch( uint8_t knobNumber )
 {
 	return KnobData[knobNumber -1];
 }
+
+// -----------------------------------------------------------------------------
+SwitchMatrix::SwitchMatrix()
+{
+}
+
+void SwitchMatrix::begin()
+{
+	// set the pins
+	pinMode(ROW1Pin, INPUT_PULLUP);
+	pinMode(ROW2Pin, INPUT_PULLUP);
+	pinMode(ROW3Pin, INPUT_PULLUP);
+	pinMode(ROW4Pin, INPUT_PULLUP);
+
+	pinMode(BSERPin, OUTPUT);
+	pinMode(BCLKPin, OUTPUT);
+	pinMode(BLATCHPin, OUTPUT);
+	pinMode(BOEpin, OUTPUT);
+
+	digitalWrite(BSERPin, 0);
+	digitalWrite(BCLKPin, 1);
+	digitalWrite(BLATCHPin, 1);
+	digitalWrite(BOEpin, 0);
+	
+}
+
+void SwitchMatrix::scan()
+{
+	for( int i = 0; i < 16; i++ )
+	{
+
+	}
+}
+
+uint8_t SwitchMatrix::fetch( uint8_t knobNumber )
+{
+	return 0;
+}
+
+void SwitchMatrix::send( uint16_t colData )
+{
+	//pull 'chip select'
+	digitalWrite(BLATCHPin, 0);
+	
+	for(int i = 15; i >= 0; i--)
+	{
+		//Change data, drop clock
+		uint8_t data_temp = (colData >> i)&0x0001;
+		Serial.println(data_temp);
+		digitalWrite(BSERPin, data_temp);
+		digitalWrite(BCLKPin, 0);
+		delay(1);
+		
+		//lift clock
+		digitalWrite(BCLKPin, 1);
+		delay(1);
+		
+	}
+	
+	//release 'chip select'
+	digitalWrite(BLATCHPin, 1);
+	
+}
