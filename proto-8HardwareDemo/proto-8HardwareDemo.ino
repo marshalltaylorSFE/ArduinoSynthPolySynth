@@ -1,5 +1,4 @@
 
-
 #include <Audio.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -28,11 +27,11 @@ AudioControlSGTL5000     sgtl5000_2;     //xy=429.888916015625,271
 
 #include "timeKeeper.h"
 //**Panels and stuff**************************//
-#include "Panel.h"
+#include "P8Panel.h"
 
 //**Panel State Machine***********************//
-//#include "looperPanel.h"
-LooperPanel myLooperPanel;
+#include "P8Interface.h"
+P8Interface p8hid;
 
 //**Timers and stuff**************************//
 IntervalTimer myTimer;
@@ -69,9 +68,12 @@ uint8_t usTicksMutex = 1; //start locked out
 int8_t loopCount = 0;
 int8_t maxLoopCount = 20;
 
+//Names use in P8PanelComponents.cpp and .h
 LEDShiftRegister LEDs;
 AnalogMuxTree knobs;
 SwitchMatrix switches;
+//End used names
+
 void setup()
 {
 	//**** Audio Section ****//
@@ -102,7 +104,14 @@ void setup()
 	LEDs.begin();
 	knobs.begin();
 	switches.begin();
+	delay(1000);
 
+	p8hid.init();
+	
+	Serial.println("Program Started");
+	// initialize IntervalTimer
+	myTimer.begin(serviceUS, 1);  // serviceMS to run every 0.001 seconds
+	
 }
 
 void loop()
@@ -124,108 +133,60 @@ void loop()
 	//**Debounce timer****************************//  
 	if(debounceTimer.flagStatus() == PENDING)
 	{
-		myLooperPanel.timersMIncrement(5);
+		p8hid.timersMIncrement(5);
 	
 	}
 		
 	//**Process the panel and state machine***********//  
 	if(panelUpdateTimer.flagStatus() == PENDING)
 	{
-		
+		p8hid.processMachine();
 	}
 	//**Fast LED toggling of the panel class***********//  
 	if(ledToggleFastTimer.flagStatus() == PENDING)
 	{
-		myLooperPanel.toggleFastFlasherState();
+		p8hid.toggleFastFlasherState();
 		
 	}
 	//**LED toggling of the panel class***********//  
 	if(ledToggleTimer.flagStatus() == PENDING)
 	{
-		myLooperPanel.toggleFlasherState();
+		p8hid.toggleFlasherState();
 		
 	}
 	//**Debug timer*******************************//  
 	if(debugTimer.flagStatus() == PENDING)
 	{
 		Serial.println("**************************Debug Service**************************");
+		Serial.println("Reading Knobs.");
+		
+		int temp;
+		for(int j = 0; j < 8; j++)
+		{
+			for(int i = 0; i < 8; i++)
+			{
+				temp = (j * 8) + i + 1;
+				Serial.print(knobs.fetch(temp));
+				Serial.print(", ");
+			}
+			Serial.print("\n");
+		}
+		
+		Serial.println("Reading Switches.");
+		for(int i = 1; i < 65; i++)
+		{
+			if((i == 1)||(i == 17)||(i == 33)||(i == 49))
+			{
+				Serial.println();
+			}
+			Serial.print(switches.fetch(i));
+			//Serial.print(i);
+			Serial.print(", ");
+		}
+		Serial.println();
+		Serial.println();
+
 	}
-	
-//	switches.scan();
-//	knobs.scan();
-//	if(Serial.available())
-//	{
-//		while(Serial.available())
-//		{
-//			Serial.read();
-//		}
-//		Serial.println("Reading Knobs.");
-//		
-//		int temp;
-//		for(int j = 0; j < 8; j++)
-//		{
-//			for(int i = 0; i < 8; i++)
-//			{
-//				temp = (j * 8) + i + 1;
-//				Serial.print(knobs.fetch(temp));
-//				Serial.print(", ");
-//			}
-//			Serial.print("\n");
-//		}
-//		
-//		Serial.println("Reading Switches.");
-//		for(int i = 1; i < 65; i++)
-//		{
-//			if((i == 1)||(i == 17)||(i == 33)||(i == 49))
-//			{
-//				Serial.println();
-//			}
-//			Serial.print(switches.fetch(i));
-//			Serial.print(", ");
-//		}
-//		Serial.println();
-//		Serial.println();
-//	}
-//	LEDs.clear();
-//
-//	uint16_t temp;
-//	temp = knobs.fetch(64);
-//	temp = temp >> 4;
-//	LEDs.store(temp + 1, 1);
-//	
-//	temp = knobs.fetch(49);
-//	temp = temp >> 4;
-//	LEDs.store(temp + 1, 1);
-//	
-//	temp = knobs.fetch(50);
-//	temp = temp >> 4;
-//	LEDs.store(temp + 1, 1);
-//	
-//	temp = knobs.fetch(51);
-//	temp = temp >> 4;
-//	LEDs.store(temp + 1, 1);
-//	
-//	temp = knobs.fetch(52);
-//	temp = temp >> 4;
-//	LEDs.store(temp + 1, 1);
-//	
-//	temp = knobs.fetch(53);
-//	temp = temp >> 4;
-//	LEDs.store(temp + 1, 1);
-//	
-//	temp = knobs.fetch(54);
-//	temp = temp >> 4;
-//	LEDs.store(temp + 1, 1);
-//	
-//	temp = knobs.fetch(55);
-//	temp = temp >> 4;
-//	LEDs.store(temp + 1, 1);
-//	
-//	temp = knobs.fetch(56);
-//	temp = temp >> 4;
-//	LEDs.store(temp + 1, 1);
-//	
-//	LEDs.send();
 	
 	
 }

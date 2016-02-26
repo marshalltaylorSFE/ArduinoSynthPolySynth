@@ -1,4 +1,4 @@
-//This sketch generates a scope loop on the button pins, led outputs, and the mux select pins.
+//Proto-8 Hardware
 //
 //  Change log;
 //    2/24/2016 -- Created
@@ -52,7 +52,7 @@ void LEDShiftRegister::send()
 	SPI.transfer(LEDData[0]);
 	//Fwap the clock
 	digitalWrite(LCLKPin, 0);
-	delay(1);
+	delayMicroseconds(10);
 	digitalWrite(LCLKPin, 1);  	 
 
 }
@@ -136,7 +136,7 @@ void AnalogMuxTree::scan()
 		digitalWrite(MUXCPin, (i & 0x04) >> 2);
 		digitalWrite(MUXDPin, (i & 0x08) >> 3);
 		//Read the pins
-		delay(1);
+		delayMicroseconds(10);
 		KnobData[i] = analogRead(A10Pin);
 		KnobData[i+16] = analogRead(A11Pin);
 		KnobData[i+32] = analogRead(A12Pin);
@@ -194,24 +194,24 @@ void SwitchMatrix::scan()
 		}
 		digitalWrite(BSERPin, data_temp);
 		digitalWrite(BCLKPin, 0);
-		delay(1);
+		delayMicroseconds(10);
 		
 		//lift clock
 		digitalWrite(BCLKPin, 1);
-		delay(1);
+		delayMicroseconds(10);
 		
 		//Read row data
-		buffers[0] |= (digitalRead(ROW1Pin) ^ 0x01);
-		buffers[1] |= (digitalRead(ROW2Pin) ^ 0x01);
-		buffers[2] |= (digitalRead(ROW3Pin) ^ 0x01);
-		buffers[3] |= (digitalRead(ROW4Pin) ^ 0x01);
+		buffers[0] |= (digitalRead(ROW1Pin) ^ 0x01) << 15;
+		buffers[1] |= (digitalRead(ROW2Pin) ^ 0x01) << 15;
+		buffers[2] |= (digitalRead(ROW3Pin) ^ 0x01) << 15;
+		buffers[3] |= (digitalRead(ROW4Pin) ^ 0x01) << 15;
 		
 		if(i != 16)
 		{
-			buffers[0] = buffers[0] << 1;
-			buffers[1] = buffers[1] << 1;
-			buffers[2] = buffers[2] << 1;
-			buffers[3] = buffers[3] << 1;
+			buffers[0] = buffers[0] >> 1;
+			buffers[1] = buffers[1] >> 1;
+			buffers[2] = buffers[2] >> 1;
+			buffers[3] = buffers[3] >> 1;
 		}
 		
 		//release 'chip select'
@@ -250,14 +250,14 @@ void SwitchMatrix::send( uint16_t colData )
 		//Serial.println(data_temp);
 		digitalWrite(BSERPin, data_temp);
 		digitalWrite(BCLKPin, 0);
-		delay(1);
+		delayMicroseconds(10);
 		
 		//lift clock
 		digitalWrite(BCLKPin, 1);
-		delay(1);
+		delayMicroseconds(10);
 		
 	}
-	
+
 	//release 'chip select'
 	digitalWrite(BLATCHPin, 1);
 	
