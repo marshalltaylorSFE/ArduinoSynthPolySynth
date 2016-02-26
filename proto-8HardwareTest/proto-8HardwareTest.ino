@@ -55,6 +55,9 @@ void setup()
 	sine4.frequency(350);
 	
 	Serial.begin(9600);
+	LEDs.begin();
+	knobs.begin();
+	switches.begin();
 
 }
 
@@ -112,7 +115,7 @@ void loop()
 //	{
 //		Serial.read();
 //	}
-	knobs.begin();
+//	knobs.begin();
 //	knobs.scan();
 //	for(int i = 1; i < 65; i++)
 //	{
@@ -125,7 +128,7 @@ void loop()
 //	Serial.println("Test done.");
 //
 //	Serial.println("\nLED PINS");
-	LEDs.begin();
+//	LEDs.begin();
 //	Serial.println("  Test walks a 1 from LED 1 to 64, each second.");
 //	Serial.println("  Follow with a multimeter");
 //
@@ -155,15 +158,23 @@ void loop()
 //	}
 //	Serial.println("Test done.");
 
-	switches.begin();
-	switches.send(0x0001);
+	//switches.begin();
+	//while(1)
+	//{
+	//	switches.send(0xAAAA);
+	//	delay(1000);
+	//	switches.send(0x5555);
+	//	delay(1000);
+	//	
+	//}
 
 
 
-	while(1)
+	//while(1)
 	{
+		switches.scan();
 		knobs.scan();
-		if(Serial.available() == 1)
+		if(Serial.available())
 		{
 			while(Serial.available())
 			{
@@ -182,8 +193,26 @@ void loop()
 				}
 				Serial.print("\n");
 			}
+			
+			Serial.println("Reading Switches.");
+			for(int i = 1; i < 65; i++)
+			{
+				if((i == 1)||(i == 17)||(i == 33)||(i == 49))
+				{
+					Serial.println();
+				}
+				Serial.print(switches.fetch(i));
+				Serial.print(", ");
+			}
+			Serial.println();
+			//Serial.println( switches.rowData[0], BIN );
+			//Serial.println( switches.rowData[1], BIN );
+			//Serial.println( switches.rowData[2], BIN );
+			//Serial.println( switches.rowData[3], BIN );
+			Serial.println();
 		}
 		LEDs.clear();
+
 		uint16_t temp;
 		temp = knobs.fetch(64);
 		temp = temp >> 4;

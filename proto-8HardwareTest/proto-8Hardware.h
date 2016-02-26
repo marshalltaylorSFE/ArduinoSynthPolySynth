@@ -62,8 +62,8 @@ public:
 	uint8_t fetch( uint8_t );
 	void send( uint16_t );
 
-private:
-	//uint16_t KnobData[64];
+//private:
+	uint16_t rowData[4];
 };
 
 #endif

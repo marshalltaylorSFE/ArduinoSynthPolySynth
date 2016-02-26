@@ -170,17 +170,68 @@ void SwitchMatrix::begin()
 
 void SwitchMatrix::scan()
 {
-	for( int i = 0; i < 16; i++ )
+	uint16_t buffers[4];
+	buffers[0] = 0;
+	buffers[1] = 0;
+	buffers[2] = 0;
+	buffers[3] = 0;
+	for(int i = 0; i <= 16; i++)
 	{
+		//pull 'chip select'
+		digitalWrite(BLATCHPin, 0);
+		
+		//Change data, drop clock
+		uint8_t data_temp = 1;
+		if(i == 0)
+		{
+			data_temp = 0;
+		}
+		digitalWrite(BSERPin, data_temp);
+		digitalWrite(BCLKPin, 0);
+		delay(1);
+		
+		//lift clock
+		digitalWrite(BCLKPin, 1);
+		delay(1);
+		
+		//Read row data
+		buffers[0] |= (digitalRead(ROW1Pin) ^ 0x01);
+		buffers[1] |= (digitalRead(ROW2Pin) ^ 0x01);
+		buffers[2] |= (digitalRead(ROW3Pin) ^ 0x01);
+		buffers[3] |= (digitalRead(ROW4Pin) ^ 0x01);
+		
+		if(i != 16)
+		{
+			buffers[0] = buffers[0] << 1;
+			buffers[1] = buffers[1] << 1;
+			buffers[2] = buffers[2] << 1;
+			buffers[3] = buffers[3] << 1;
+		}
+		
+		//release 'chip select'
+		digitalWrite(BLATCHPin, 1);
 
 	}
+
+	rowData[0] = buffers[0];
+	rowData[1] = buffers[1];
+	rowData[2] = buffers[2];
+	rowData[3] = buffers[3];
 }
 
-uint8_t SwitchMatrix::fetch( uint8_t knobNumber )
+uint8_t SwitchMatrix::fetch( uint8_t switchNumber )
 {
-	return 0;
+	switchNumber--;
+	uint8_t rowVar = switchNumber / 16;
+	uint8_t colVar = switchNumber % 16;
+	uint8_t returnVar = (rowData[rowVar] >> colVar) & 0x0001;
+	return returnVar;
 }
 
+
+//send() really shouldn't be used--there's not much reason to
+//set all col addresses at once outside of test.  Use the scan()
+//function to read between clocks.
 void SwitchMatrix::send( uint16_t colData )
 {
 	//pull 'chip select'
@@ -190,7 +241,7 @@ void SwitchMatrix::send( uint16_t colData )
 	{
 		//Change data, drop clock
 		uint8_t data_temp = (colData >> i)&0x0001;
-		Serial.println(data_temp);
+		//Serial.println(data_temp);
 		digitalWrite(BSERPin, data_temp);
 		digitalWrite(BCLKPin, 0);
 		delay(1);
