@@ -1,3 +1,5 @@
+
+
 #include <Audio.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -19,7 +21,9 @@ AudioControlSGTL5000     sgtl5000_2;     //xy=429.888916015625,271
 // GUItool: end automatically generated code
 
 //This sketch generates a scope loop on the button pins, led outputs, and the mux select pins.
-
+//
+//  Change log;
+//    2/24/2016 -- Created
 
 #include "proto-8Hardware.h"
 
@@ -205,10 +209,6 @@ void loop()
 				Serial.print(", ");
 			}
 			Serial.println();
-			//Serial.println( switches.rowData[0], BIN );
-			//Serial.println( switches.rowData[1], BIN );
-			//Serial.println( switches.rowData[2], BIN );
-			//Serial.println( switches.rowData[3], BIN );
 			Serial.println();
 		}
 		LEDs.clear();

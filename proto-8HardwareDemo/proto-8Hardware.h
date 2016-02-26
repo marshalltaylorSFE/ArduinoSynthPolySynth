@@ -2,6 +2,8 @@
 //
 //  Change log;
 //    2/24/2016 -- Created
+//    2/25/2016 -- Branched to demo for deployment
+
 #if !defined(PROTO8_HARDWARE_H)
 #define PROTO8_HARDWARE_H
 

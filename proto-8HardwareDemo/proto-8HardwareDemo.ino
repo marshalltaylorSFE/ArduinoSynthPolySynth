@@ -1,3 +1,5 @@
+
+
 #include <Audio.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -18,194 +20,228 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=429.888916015625,226
 AudioControlSGTL5000     sgtl5000_2;     //xy=429.888916015625,271
 // GUItool: end automatically generated code
 
-const int nOEPin = 33;
-const int LCLKPin = 32;
-const int nRSTPin = 26;
-const int SPI_CLK = 14;
-const int SPI_MOSI = 7;
+
+#include "proto-8Hardware.h"
+
+//**Timers and stuff**************************//
+#include "timerModule32.h"
+
+#include "timeKeeper.h"
+//**Panels and stuff**************************//
+#include "Panel.h"
+
+//**Panel State Machine***********************//
+//#include "looperPanel.h"
+LooperPanel myLooperPanel;
+
+//**Timers and stuff**************************//
+IntervalTimer myTimer;
+
+//HOW TO OPERATE
+//  Make TimerClass objects for each thing that needs periodic service
+//  pass the interval of the period in ticks
+//  Set MAXINTERVAL to the max foreseen interval of any TimerClass
+//  Set MAXTIMER to overflow number in the header.  MAXTIMER + MAXINTERVAL
+//    cannot exceed variable size.
+//Globals
+uint32_t MAXTIMER = 60000000;
+uint32_t MAXINTERVAL = 2000000;
+
+TimerClass32 panelUpdateTimer(10000);
+
+TimerClass32 ledToggleTimer( 333000 );
+uint8_t ledToggleState = 0;
+TimerClass32 ledToggleFastTimer( 100000 );
+uint8_t ledToggleFastState = 0;
+
+TimerClass32 debounceTimer(5000);
+
+TimerClass32 debugTimer(1000000);
+
+//tick variable for interrupt driven timer1
+uint32_t usTicks = 0;
+uint8_t usTicksMutex = 1; //start locked out
+
+
+
+
 
 int8_t loopCount = 0;
 int8_t maxLoopCount = 20;
 
-uint8_t testingLEDs = 1;
-
-void setup() {
-//**** LED Section ****//
-  // set the slaveSelectPin as an output:
-  pinMode (nOEPin, OUTPUT);
-  pinMode (LCLKPin, OUTPUT);
-  pinMode (nRSTPin, OUTPUT);
-  
-  digitalWrite(nOEPin, 0);
-  digitalWrite(LCLKPin, 1);
-  digitalWrite(nRSTPin, 1);
-  
-  // initialize SPI:
-  SPI.setMOSI(SPI_MOSI);
-  SPI.setSCK(SPI_CLK);
-  SPI.begin();
-  SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE0));
-
-  //**** Audio Section ****//
-  AudioMemory(35);
-  
-  sgtl5000_1.setAddress(LOW);
-  sgtl5000_1.enable();
-  sgtl5000_1.volume(0.5);
-
-  sgtl5000_2.setAddress(HIGH);
-  sgtl5000_2.enable();
-  sgtl5000_2.volume(0.5);
-
-  sine1.amplitude(1);
-  sine1.frequency(440);
-  
-  sine2.amplitude(1);
-  sine2.frequency(440);
-
-  sine3.amplitude(1);
-  sine3.frequency(440);
-  
-  sine4.amplitude(1);
-  sine4.frequency(440);
+LEDShiftRegister LEDs;
+AnalogMuxTree knobs;
+SwitchMatrix switches;
+void setup()
+{
+	//**** Audio Section ****//
+	AudioMemory(35);
+	
+	sgtl5000_1.setAddress(LOW);
+	sgtl5000_1.enable();
+	sgtl5000_1.volume(0.5);
+	
+	sgtl5000_2.setAddress(HIGH);
+	sgtl5000_2.enable();
+	sgtl5000_2.volume(0.5);
+	
+	sine1.amplitude(1);
+	sine1.frequency(440);
+	
+	sine2.amplitude(1);
+	sine2.frequency(220);
+	
+	sine3.amplitude(1);
+	sine3.frequency(440);
+	
+	sine4.amplitude(1);
+	sine4.frequency(350);
+	
+	Serial.begin(9600);
+	
+	LEDs.begin();
+	knobs.begin();
+	switches.begin();
 
 }
 
 void loop()
 {
-	//LED stuff
-	if( testingLEDs )
+//**Copy to make a new timer******************//  
+//   msTimerA.update(usTicks);
+	ledToggleTimer.update(usTicks);
+	ledToggleFastTimer.update(usTicks);
+	panelUpdateTimer.update(usTicks);
+	debounceTimer.update(usTicks);
+	debugTimer.update(usTicks);
+	
+//**Copy to make a new timer******************//  
+	//  if(msTimerA.flagStatus() == PENDING)
+	//  {
+	//    digitalWrite( LEDPIN, digitalRead(LEDPIN) ^ 1 );
+	//  }
+	
+	//**Debounce timer****************************//  
+	if(debounceTimer.flagStatus() == PENDING)
 	{
-		for( int n = 0; n <= 1; n++ )
-		{
-			for( int i = 0; i <= 7; i++ )
-			{
-				SPI.transfer(0x01);
-				SPI.transfer(0x01);
-				SPI.transfer(0x01);
-				SPI.transfer(0x01);
-				SPI.transfer(0x01);
-				SPI.transfer(0x01);
-				SPI.transfer(0x00);
-				SPI.transfer(0x01 << i);
-				digitalWrite(LCLKPin, 0);
-				delay(1);
-				digitalWrite(LCLKPin, 1);  
-				delay(n*200+50);
-				
-			} 
-			
-			for( int i = 0; i <= 7; i++ )
-			{
-				SPI.transfer(0x01);
-				SPI.transfer(0x01);
-				SPI.transfer(0x01);
-				SPI.transfer(0x01);
-				SPI.transfer(0x01);
-				SPI.transfer(0x01);
-				SPI.transfer(0x01 << i);
-				SPI.transfer(0x00);
-				digitalWrite(LCLKPin, 0);
-				delay(1);
-				digitalWrite(LCLKPin, 1);  
-				delay(n*200+50);
-			} 
-			delay(n*400+200);
-		}
-		//delay(1000);
-		for(uint32_t n = 0; n < 100; n++)
-		{
-				for(int i = 0; i < 2; i++)
-				{
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0xFE);
-					SPI.transfer(0xFF);
-					digitalWrite(LCLKPin, 0);
-					delay(1);
-					digitalWrite(LCLKPin, 1);  
-				}
-				for(int i = 0; i < 3; i++)
-				{
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x78);
-					SPI.transfer(0x3F);
-					digitalWrite(LCLKPin, 0);
-					delay(1);
-					digitalWrite(LCLKPin, 1);  
-				}
-				for(int i = 0; i < 6; i++)
-				{
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x30);
-					SPI.transfer(0x0F);
-					digitalWrite(LCLKPin, 0);
-					delay(1);
-					digitalWrite(LCLKPin, 1);  
-				}
-				for(int i = 0; i < 12; i++)
-				{
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x00);
-					SPI.transfer(0x10);
-					SPI.transfer(0x03);
-					digitalWrite(LCLKPin, 0);
-					delay(1);
-					digitalWrite(LCLKPin, 1);  
-				}
-		}
-		
-		testingLEDs = 0;
+		myLooperPanel.timersMIncrement(5);
+	
 	}
-	SPI.transfer(0x00);//MSB
-	SPI.transfer(0x00);
-	SPI.transfer(0x00);
-	SPI.transfer(0x00);
-	SPI.transfer(0x00);
-	SPI.transfer(0x00);
-	SPI.transfer(0xAA);
-	SPI.transfer(0x55);
-	digitalWrite(LCLKPin, 0);
-	delay(1);
-	digitalWrite(LCLKPin, 1);  	 
-	sine1.frequency(220);
-	sine2.frequency(311.127);
-	sine3.frequency(220);
-	sine4.frequency(440);	
-	delay(1000);
+		
+	//**Process the panel and state machine***********//  
+	if(panelUpdateTimer.flagStatus() == PENDING)
+	{
+		
+	}
+	//**Fast LED toggling of the panel class***********//  
+	if(ledToggleFastTimer.flagStatus() == PENDING)
+	{
+		myLooperPanel.toggleFastFlasherState();
+		
+	}
+	//**LED toggling of the panel class***********//  
+	if(ledToggleTimer.flagStatus() == PENDING)
+	{
+		myLooperPanel.toggleFlasherState();
+		
+	}
+	//**Debug timer*******************************//  
+	if(debugTimer.flagStatus() == PENDING)
+	{
+		Serial.println("**************************Debug Service**************************");
+	}
+	
+//	switches.scan();
+//	knobs.scan();
+//	if(Serial.available())
+//	{
+//		while(Serial.available())
+//		{
+//			Serial.read();
+//		}
+//		Serial.println("Reading Knobs.");
+//		
+//		int temp;
+//		for(int j = 0; j < 8; j++)
+//		{
+//			for(int i = 0; i < 8; i++)
+//			{
+//				temp = (j * 8) + i + 1;
+//				Serial.print(knobs.fetch(temp));
+//				Serial.print(", ");
+//			}
+//			Serial.print("\n");
+//		}
+//		
+//		Serial.println("Reading Switches.");
+//		for(int i = 1; i < 65; i++)
+//		{
+//			if((i == 1)||(i == 17)||(i == 33)||(i == 49))
+//			{
+//				Serial.println();
+//			}
+//			Serial.print(switches.fetch(i));
+//			Serial.print(", ");
+//		}
+//		Serial.println();
+//		Serial.println();
+//	}
+//	LEDs.clear();
+//
+//	uint16_t temp;
+//	temp = knobs.fetch(64);
+//	temp = temp >> 4;
+//	LEDs.store(temp + 1, 1);
+//	
+//	temp = knobs.fetch(49);
+//	temp = temp >> 4;
+//	LEDs.store(temp + 1, 1);
+//	
+//	temp = knobs.fetch(50);
+//	temp = temp >> 4;
+//	LEDs.store(temp + 1, 1);
+//	
+//	temp = knobs.fetch(51);
+//	temp = temp >> 4;
+//	LEDs.store(temp + 1, 1);
+//	
+//	temp = knobs.fetch(52);
+//	temp = temp >> 4;
+//	LEDs.store(temp + 1, 1);
+//	
+//	temp = knobs.fetch(53);
+//	temp = temp >> 4;
+//	LEDs.store(temp + 1, 1);
+//	
+//	temp = knobs.fetch(54);
+//	temp = temp >> 4;
+//	LEDs.store(temp + 1, 1);
+//	
+//	temp = knobs.fetch(55);
+//	temp = temp >> 4;
+//	LEDs.store(temp + 1, 1);
+//	
+//	temp = knobs.fetch(56);
+//	temp = temp >> 4;
+//	LEDs.store(temp + 1, 1);
+//	
+//	LEDs.send();
+	
+	
+}
 
-	SPI.transfer(0x00);//MSB
-	SPI.transfer(0x00);
-	SPI.transfer(0x00);
-	SPI.transfer(0x00);
-	SPI.transfer(0x00);
-	SPI.transfer(0x00);
-	SPI.transfer(0x55);
-	SPI.transfer(0xAA);
-	digitalWrite(LCLKPin, 0);
-	delay(1);
-	digitalWrite(LCLKPin, 1);  	 
-	sine1.frequency(311.127);
-	sine2.frequency(220);
-	sine3.frequency(440);
-	sine4.frequency(220);	
-	delay(1000);
+void serviceUS(void)
+{
+  uint32_t returnVar = 0;
+  if(usTicks >= ( MAXTIMER + MAXINTERVAL ))
+  {
+    returnVar = usTicks - MAXTIMER;
+
+  }
+  else
+  {
+    returnVar = usTicks + 1;
+  }
+  usTicks = returnVar;
+  usTicksMutex = 0;  //unlock
 }
