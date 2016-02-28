@@ -46,7 +46,7 @@ IntervalTimer myTimer;
 uint32_t MAXTIMER = 60000000;
 uint32_t MAXINTERVAL = 2000000;
 
-TimerClass32 panelUpdateTimer(10000);
+TimerClass32 panelUpdateTimer(5000);
 
 TimerClass32 ledToggleTimer( 333000 );
 uint8_t ledToggleState = 0;
@@ -55,7 +55,7 @@ uint8_t ledToggleFastState = 0;
 
 TimerClass32 debounceTimer(5000);
 
-TimerClass32 debugTimer(1000000);
+TimerClass32 debugTimer(333000);
 
 //tick variable for interrupt driven timer1
 uint32_t usTicks = 0;
@@ -172,7 +172,7 @@ void loop()
 			Serial.print("\n");
 		}
 		
-		Serial.println("Reading Switches.");
+		Serial.print("\nReading Switches.");
 		for(int i = 1; i < 65; i++)
 		{
 			if((i == 1)||(i == 17)||(i == 33)||(i == 49))
@@ -184,6 +184,22 @@ void loop()
 			Serial.print(", ");
 		}
 		Serial.println();
+		
+		Serial.println("LED data");
+		for(int i = 0; i < 8; i++)
+		{
+			uint8_t ledpack = LEDs.LEDData[i];
+			if(ledpack < 0x80) Serial.print("0");
+			if(ledpack < 0x40) Serial.print("0");
+			if(ledpack < 0x20) Serial.print("0");
+			if(ledpack < 0x10) Serial.print("0");
+			if(ledpack < 0x08) Serial.print("0");
+			if(ledpack < 0x04) Serial.print("0");
+			if(ledpack < 0x02) Serial.print("0");
+			Serial.println(ledpack, BIN);
+			//Serial.print(i);
+		}
+		Serial.println();		
 		Serial.println();
 
 	}

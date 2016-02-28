@@ -53,7 +53,7 @@ void P8PanelSwitch::update( void )
 //---Knob--------------------------------------------------------
 P8PanelKnob8Bit::P8PanelKnob8Bit( void )
 {
-
+	lastState = 0;
 }
 
 void P8PanelKnob8Bit::init( uint8_t posInput )
@@ -66,16 +66,10 @@ void P8PanelKnob8Bit::init( uint8_t posInput )
 
 void P8PanelKnob8Bit::update( void )
 {
-  uint8_t tempState = knobs.fetch( posNumber ) >> 2;
-  if( tempState < 2 )
-  {
-    tempState = 1;
-  }
-  if( ( state > (tempState + 2) ) || ( state < (tempState - 2) ))
-  {
-    state = tempState;
+	uint16_t tempState = knobs.fetch( posNumber ) >> 2;
+	state = tempState;
     newData = 1;
-  }
+
 }
 
 uint8_t P8PanelKnob8Bit::getState( void )

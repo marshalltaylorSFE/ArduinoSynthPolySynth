@@ -113,7 +113,15 @@ void P8Interface::processMachine( void )
 	{
 		led16.toggle();
 	}
+	if( fixtureKnob.newData == 1 )
+	{
+		//LEDs.store( fixtureKnob.getState() + 1, 1 );
+		//LEDs.store( attackBendKnob.getState() + 1, 0 );
+		display1.setNumber1( fixtureKnob.getState() );
+		//Serial.println( fixtureKnob.getState() );
+	}
 	//'set' all the values
+	display1.update();
 	update();
 	
 	//Do main machine
@@ -172,4 +180,98 @@ void P8Interface::timersMIncrement( uint8_t inputValue )
 	button16.buttonDebounceTimeKeeper.mIncrement(inputValue);	
 	
 
+}
+
+extern P8Interface p8hid;
+
+HpSeg::HpSeg( void )
+{
+	scanDigit = 1;
+	number1 = 0;
+	
+}
+
+void HpSeg::update( void )
+{
+	scanDigit++;
+	if( scanDigit > 9 )
+	{
+		scanDigit = 1;
+	}
+	p8hid.hpD1.setState( LEDON );
+	p8hid.hpD2.setState( LEDON );
+	p8hid.hpD3.setState( LEDON );
+	p8hid.hpD4.setState( LEDON );
+	p8hid.hpD5.setState( LEDON );
+	p8hid.hpD6.setState( LEDON );
+	p8hid.hpD7.setState( LEDON );
+	p8hid.hpD8.setState( LEDON );
+	p8hid.hpD9.setState( LEDON );
+	p8hid.hpA.setState( LEDOFF );
+	p8hid.hpB.setState( LEDOFF );
+	p8hid.hpC.setState( LEDOFF );
+	p8hid.hpD.setState( LEDOFF );
+	p8hid.hpE.setState( LEDOFF );
+	p8hid.hpF.setState( LEDOFF );
+	p8hid.hpG.setState( LEDOFF );
+	p8hid.hpDP.setState( LEDOFF );
+	switch( scanDigit )
+	{
+		case 1:
+		p8hid.hpD1.setState( LEDOFF );
+		break;
+		case 2:
+		p8hid.hpD2.setState( LEDOFF );
+		break;
+		case 3:
+		p8hid.hpD3.setState( LEDOFF );
+		break;
+		case 4:
+		p8hid.hpD4.setState( LEDOFF );
+		break;
+		case 5:
+		p8hid.hpD5.setState( LEDOFF );
+		break;
+		case 6:
+		p8hid.hpD6.setState( LEDOFF );
+		break;
+		case 7:
+		p8hid.hpD7.setState( LEDOFF );
+		break;
+		case 8:
+		p8hid.hpD8.setState( LEDOFF );
+		break;
+		case 9:
+		p8hid.hpD9.setState( LEDOFF );
+		break;
+		default:
+		break;
+	}
+	if( dispBuffer[scanDigit - 1] & 0x01 ) p8hid.hpA.setState( LEDON );
+	if( dispBuffer[scanDigit - 1] & 0x02 ) p8hid.hpF.setState( LEDON );
+	if( dispBuffer[scanDigit - 1] & 0x04 ) p8hid.hpG.setState( LEDON );
+	if( dispBuffer[scanDigit - 1] & 0x08 ) p8hid.hpE.setState( LEDON );
+	if( dispBuffer[scanDigit - 1] & 0x10 ) p8hid.hpD.setState( LEDON );
+	if( dispBuffer[scanDigit - 1] & 0x20 ) p8hid.hpC.setState( LEDON );
+	if( dispBuffer[scanDigit - 1] & 0x40 ) p8hid.hpB.setState( LEDON );
+	if( dispBuffer[scanDigit - 1] & 0x80 ) p8hid.hpDP.setState( LEDON );
+}
+
+void HpSeg::setNumber1( uint16_t inputVal )
+{
+	uint16_t inputTemp = inputVal;
+	uint16_t mathTemp = 0;
+	for( int i = 0; i < 9; i++ )
+	{
+		mathTemp = inputTemp%10;
+		if(( inputTemp > 0 )||( i == 0 ))
+		{
+			dispBuffer[8 - i] = digitsLUT[mathTemp];
+		}
+		else
+		{
+			dispBuffer[8 - i] = digitsLUT[10];
+		}
+		inputTemp /= 10;
+	}
 }

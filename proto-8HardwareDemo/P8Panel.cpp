@@ -37,6 +37,17 @@
 #define LED2POS 39
 #define LED1POS 40
 
+#define FIXTUREKNOBPOS 64
+
+#define	AKPOS 56
+#define	ABKPOS 51
+#define	HKPOS 55
+#define	DKPOS 54
+#define	DBKPOS 50
+#define	SKPOS 53
+#define	RKPOS 52
+#define	RBKPOS 49
+
 
 P8Panel::P8Panel( void )
 {
@@ -79,7 +90,35 @@ void P8Panel::init( void )
 	led14.init(LED14POS);
 	led15.init(LED15POS);
 	led16.init(LED16POS);
+
+	hpA.init(60);
+	hpB.init(52);
+	hpC.init(64);
+	hpD.init(56);
+	hpE.init(58);
+	hpF.init(50);
+	hpG.init(54);
+	hpDP.init(62);
+	hpD1.init(48);
+	hpD2.init(63);
+	hpD3.init(61);
+	hpD4.init(59);
+	hpD5.init(57);
+	hpD6.init(55);
+	hpD7.init(53);
+	hpD8.init(51);
+	hpD9.init(49);
 	
+	fixtureKnob.init(FIXTUREKNOBPOS);
+	
+	attackKnob.init(AKPOS);
+	attackBendKnob.init(ABKPOS);
+	holdKnob.init(HKPOS);
+	decayKnob.init(DKPOS);
+	decayBendKnob.init(DBKPOS);
+	sustainKnob.init(SKPOS);
+	releaseKnob.init(RKPOS);
+	releaseBendKnob.init(RBKPOS);
 	
  	flasherState = 0;
 	fastFlasherState = 0;
@@ -120,6 +159,36 @@ void P8Panel::update( void )
 	led14.update();
 	led15.update();
 	led16.update();
+	
+	hpA.update();
+	hpB.update();
+	hpC.update();
+	hpD.update();
+	hpE.update();
+	hpF.update();
+	hpG.update();
+	hpDP.update();
+	hpD1.update();
+	hpD2.update();
+	hpD3.update();
+	hpD4.update();
+	hpD5.update();
+	hpD6.update();
+	hpD7.update();
+	hpD8.update();
+	hpD9.update();
+	
+	fixtureKnob.update();
+	
+	attackKnob.update();
+	attackBendKnob.update();
+	holdKnob.update();
+	decayKnob.update();
+	decayBendKnob.update();
+	sustainKnob.update();
+	releaseKnob.update();
+	releaseBendKnob.update();
+	
 }
 
 void P8Panel::toggleFlasherState( void )

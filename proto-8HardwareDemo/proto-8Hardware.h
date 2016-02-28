@@ -42,7 +42,7 @@ public:
 	void send();
 	void store( uint8_t, uint8_t );
 	void clear();
-private:
+//private:
 	uint8_t LEDData[8];
 };
 
